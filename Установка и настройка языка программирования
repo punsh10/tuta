@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обзор языков программирования</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-left: 4px solid #2980b9;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #444;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            margin-top: 15px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        code {
+            background-color: #eaeaea;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+            color: #c0392b;
+        }
+        .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        .note {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Справочник по языкам программирования</h1>
+
+    <!-- TypeScript -->
+    <h2>1. TypeScript</h2>
+    <div class="card">
+        <h3>1. Где используется?</h3>
+        <ul>
+            <li>Frontend-разработка (Angular, React, Vue).</li>
+            <li>Backend-разработка (Node.js, Deno).</li>
+            <li>Мобильная разработка (React Native).</li>
+        </ul>
+
+        <h3>2. Требования к установке</h3>
+        <ul>
+            <li>Установленный Node.js и npm (менеджер пакетов).</li>
+            <li>Текстовый редактор или IDE (рекомендуется VS Code).</li>
+        </ul>
+
+        <h3>3. Как установить</h3>
+        <p>Откройте терминал и выполните команду:</p>
+        <code>npm install -g typescript</code>
+        <p>Проверка версии: <code>tsc -v</code></p>
+
+        <h3>4. Что нужно чтобы начать писать код?</h3>
+        <ul>
+            <li>Создайте файл с расширением <code>.ts</code> (например, <code>hello.ts</code>).</li>
+            <li>Напишите код.</li>
+            <li>Скомпилируйте его в JS командой <code>tsc hello.ts</code>.</li>
+            <li>Запустите полученный <code>.js</code> файл через Node.js.</li>
+        </ul>
+    </div>
+
+    <!-- Kotlin -->
+    <h2>2. Kotlin</h2>
+    <div class="card">
+        <h3>1. Где используется?</h3>
+        <ul>
+            <li>Разработка Android-приложений (основной язык).</li>
+            <li>Backend-разработка (Spring Boot).</li>
+            <li>Мультиплатформенная разработка (KMP).</li>
+        </ul>
+
+        <h3>2. Требования к установке</h3>
+        <ul>
+            <li>Java Development Kit (JDK) версии 8 или выше.</li>
+            <li>IDE (IntelliJ IDEA или Android Studio).</li>
+        </ul>
+
+        <h3>3. Как установить</h3>
+        <p>Самый простой способ — установить IntelliJ IDEA. Язык и SDK обычно настраиваются автоматически. Для ручной установки используйте SDKMAN или пакетные менеджеры (brew, apt).</p>
+
+        <h3>4. Что нужно чтобы начать писать код?</h3>
+        <ul>
+            <li>Создать проект в IDE (Kotlin Application).</li>
+            <li>Использовать онлайн-песочницу (Kotlin Playground) для быстрых тестов.</li>
+            <li>Знание синтаксиса (переменные <code>val</code> и <code>var</code>).</li>
+        </ul>
+    </div>
+
+    <!-- Rust -->
+    <h2>3. Rust</h2>
+    <div class="card">
+        <h3>1. Где используется?</h3>
+        <ul>
+            <li>Системное программирование (ОС, драйверы).</li>
+            <li>WebAssembly (высокопроизводительные веб-приложения).</li>
+            <li>Backend (высоконагруженные сервисы).</li>
+        </ul>
+
+        <h3>2. Требования к установке</h3>
+        <ul>
+            <li>Компилятор <code>rustc</code> и менеджер пакетов <code>cargo</code>.</li>
+            <li>Линкер (для Windows может потребоваться Visual Studio C++ Build Tools).</li>
+        </ul>
+
+        <h3>3. Как установить</h3>
+        <p>Используйте утилиту <code>rustup</code> (скачивается с официального сайта). В терминале:</p>
+        <code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code>
+
+        <h3>4. Что нужно чтобы начать писать код?</h3>
+        <ul>
+            <li>Создать проект: <code>cargo new hello_world</code>.</li>
+            <li>Открыть папку проекта в редакторе.</li>
+            <li>Писать код в файле <code>src/main.rs</code> и запускать через <code>cargo run</code>.</li>
+        </ul>
+    </div>
+
+    <!-- Swift -->
+    <h2>4. Swift</h2>
+    <div class="card">
+        <h3>1. Где используется?</h3>
+        <ul>
+            <li>Разработка под iOS, macOS, watchOS, tvOS.</li>
+            <li>Серверная разработка (Vapor).</li>
+        </ul>
+
+        <h3>2. Требования к установке</h3>
+        <ul>
+            <li>macOS (для нативной разработки под Apple).</li>
+            <li>Xcode (среда разработки).</li>
+            <li>На Linux/Windows требуется установка компилятора Swift.</li>
+        </ul>
+
+        <h3>3. Как установить</h3>
+        <p>Основной путь — скачать Xcode из Mac App Store. Для Linux/Windows — скачать бинарники с официального сайта Swift.org.</p>
+
+        <h3>4. Что нужно чтобы начать писать код?</h3>
+        <ul>
+            <li>Для Apple: Открыть Xcode -> Create New Playground.</li>
+            <li>Для изучения: использовать онлайн-компиляторы или приложение Swift Playgrounds на iPad.</li>
+        </ul>
+    </div>
+
+    <!-- Golang -->
+    <h2>5. Golang (Go)</h2>
+    <div class="card">
+        <h3>1. Где используется?</h3>
+        <ul>
+            <li>Backend-разработка (микросервисы, API).</li>
+            <li>DevOps и облачные технологии (Docker, Kubernetes).</li>
+            <li>Сетевые инструменты.</li>
+        </ul>
+
+        <h3>2. Требования к установке</h3>
+        <ul>
+            <li>Операционная система (Windows, Linux, macOS).</li>
+            <li>Текстовый редактор (VS Code с плагином Go).</li>
+        </ul>
+
+        <h3>3. Как установить</h3>
+        <p>Скачайте установщик с официального сайта <code>go.dev</code> и запустите его. Либо используйте пакетный менеджер (например, <code>brew install go</code>).</p>
+
+        <h3>4. Что нужно чтобы начать писать код?</h3>
+        <ul>
+            <li>Создать папку проекта.</li>
+            <li>Инициализировать модуль: <code>go mod init myproject</code>.</li>
+            <li>Создать файл <code>main.go</code> и запустить командой <code>go run main.go</code>.</li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
