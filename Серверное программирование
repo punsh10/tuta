@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эволюция сетевого взаимодействия и Backend на Python</title>
+    <style>
+        :root {
+            --primary: #306998;
+            --secondary: #FFD43B;
+            --bg: #f8f9fa;
+            --text: #2c3e50;
+            --code-bg: #282c34;
+            --code-text: #abb2bf;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e3c5a 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        header h1 { margin: 0; font-size: 2.2em; }
+        header p { margin: 10px 0 0; opacity: 0.8; }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        .task {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 40px;
+            border-top: 5px solid var(--primary);
+        }
+        .task h2 {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .task h3 {
+            color: #444;
+            margin-top: 25px;
+            font-size: 1.2em;
+        }
+        .task h4 {
+            color: #555;
+            margin-top: 20px;
+            font-size: 1.05em;
+        }
+        p { margin: 10px 0; }
+        ul, ol { padding-left: 25px; margin: 10px 0; }
+        li { margin-bottom: 8px; }
+        code {
+            background-color: #eef1f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Fira Code", "Courier New", monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "Fira Code", "Courier New", monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f3f5;
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background-color: #fafafa; }
+        .schema {
+            background: #f0f4f8;
+            border: 2px dashed #b0c4de;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Backend на Python: Полный гид</h1>
+    <p>Сетевые протоколы, WSGI/ASGI, фреймворки, конкурентность, базы данных, очереди, безопасность и деплой</p>
+</header>
+
+<div class="container">
+
+    <!-- ЗАДАНИЕ 1 -->
+    <div class="task">
+        <h2>Задание 1. Эволюция сетевого взаимодействия в Python</h2>
+
+        <h3>1. Как работает модуль socket в Python? Концептуальная схема.</h3>
+        <p>Модуль <code>socket</code> предоставляет низкоуровневый интерфейс для работы с сетевыми соединениями. Он инкапсулирует системные вызовы BSD-сокетов (API операционной системы). Сокет — это конечная точка для обмена данными между процессами по сети.</p>
+        
+        <h4>Концептуальная схема (TCP):</h4>
+        <div class="schema">
+СЕРВЕР                                   КЛИЕНТ
+  |                                         |
+  | socket() -> создать сокет               | socket() -> создать сокет
+  |                                         |
+  | bind(host, port) -> привязать к адресу   |
+  |                                         |
+  | listen() -> слушать порт                 |
+  |                                         |
+  | accept() -> ждать соединения             | connect(server_ip, port) -> подключиться
+  |    |                                    |          |
+  |    +<------- TCP Handshake -------------+
+  |    |                                    |
+  | recv() <- данные ----------------------> send()
+  | send() -> данные ----------------------> recv()
+  |                                         |
+  | close() -> закрыть                      | close() -> закрыть
+        </div>
+        <p>Пример кода сервера и клиента:</p>
+<pre><code># Сервер
+import socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('localhost', 8080))
+s.listen(1)
+conn, addr = s.accept()
+data = conn.recv(1024)
+conn.send(b"Hello, client!")
+conn.close()
+
+# Клиент
+c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+c.connect(('localhost', 8080))
+c.send(b"Hello, server!")
+print(c.recv(1024))
+c.close()</code></pre>
+
+        <h3>2. Разница между блокирующими и неблокирующими сокетами</h3>
+        <table>
+            <tr><th>Критерий</th><th>Блокирующий сокет (по умолчанию)</th><th>Неблокирующий сокет</th></tr>
+            <tr><td>Поведение при вызове</td><td>Вызов <code>recv()</code>/<code>accept()</code> останавливает поток до появления данных или соединения.</td><td>Вызов сразу возвращает управление. Если данных нет — исключение <code>BlockingIOError</code> или возврат <code>None</code>.</td></tr>
+            <tr><td>Потоки</td><td>Требует отдельного потока/процесса на каждое соединение.</td><td>Позволяет одному потоку обслуживать множество соединений (мультиплексирование).</td></tr>
+            <tr><td>Инструменты Python</td><td>Стандартный <code>socket</code>, <code>threading</code>.</td><td><code>setblocking(False)</code>, модуль <code>selectors</code>, <code>asyncio</code>.</td></tr>
+            <tr><td>Применение</td><td>Простые скрипты, фоновые задачи.</td><td>Высоконагруженные серверы, async-приложения.</td></tr>
+        </table>
+
+        <h3>3. HTTP-сервер и модели обработки запросов</h3>
+        <p>HTTP-сервер — это приложение, слушающее порт (обычно 80/443) и обрабатывающее HTTP-запросы по протоколу TCP.</p>
+        <ul>
+            <li><strong>Один процесс на запрос (prefork):</strong> При каждом входящем соединении создаётся новый процесс (или поток). Плюс: изоляция. Минус: высокое потребление памяти, медленный старт. <em>Пример: Apache prefork.</em></li>
+            <li><strong>Пул потоков (thread pool):</strong> Ограниченное количество потоков обслуживает очередь запросов. Плюс: экономия ресурсов. Минус: GIL в Python ограничивает CPU-bound задачи; контекстные переключения. <em>Пример: Gunicorn sync workers, ThreadingHTTPServer.</em></li>
+            <li><strong>Event-loop (асинхронность):</strong> Один поток обрабатывает множество соединений через неблокирующие сокеты и цикл событий. Плюс: максимальная масштабируемость для I/O-bound. Минус: сложность отладки, блокирующий код «убивает» весь сервер. <em>Пример: Uvicorn, Hypercorn, asyncio-серверы.</em></li>
+        </ul>
+
+        <h3>4. WebSocket и отличие от HTTP в Python</h3>
+        <p><strong>WebSocket</strong> — протокол полнодуплексной связи поверх TCP. После рукопожатия (HTTP Upgrade) соединение остаётся открытым, и обе стороны могут отправлять данные в любой момент.</p>
+        <table>
+            <tr><th>Критерий</th><th>HTTP</th><th>WebSocket</th></tr>
+            <tr><td>Модель</td><td>Запрос-ответ (клиент инициирует)</td><td>Двунаправленная (full-duplex)</td></tr>
+            <tr><td>Соединение</td><td>Короткоживущее (или keep-alive)</td><td>Долгоживущее, постоянное</td></tr>
+            <tr><td>Реализация в Python</td><td>WSGI (синхронно), ASGI (асинхронно)</td><td>Только ASGI (через <code>websockets</code>, <code>starlette</code>, <code>FastAPI</code>)</td></tr>
+            <tr><td>Применение</td><td>REST API, загрузка страниц</td><td>Чаты, биржи, игры, push-уведомления</td></tr>
+        </table>
+        <p><strong>Почему WSGI не подходит для WebSocket:</strong> WSGI-спецификация предполагает синхронный цикл «запрос → ответ → закрытие». WebSocket требует удержания соединения и асинхронного чтения/записи, что невозможно в синхронной модели WSGI.</p>
+    </div>
+
+    <!-- ЗАДАНИЕ 2 -->
+    <div class="task">
+        <h2>Задание 2. Спецификации WSGI и ASGI</h2>
+
+        <h3>1. PEP 3333 (WSGI): какую проблему решила?</h3>
+        <p><strong>WSGI (Web Server Gateway Interface)</strong> — стандарт интерфейса между веб-сервером и Python-приложением. До его появления каждый фреймворк (Django, Flask, Zope) имел собственный способ общения с сервером (mod_python, CGI, FastCGI), что приводило к несовместимости.</p>
+        <p>PEP 3333 решил проблему <strong>переносимости</strong>: приложение, написанное по WSGI, может работать с любым WSGI-сервером (Gunicorn, uWSGI, Waitress), а сервер — с любым WSGI-фреймворком.</p>
+        <p>WSGI-приложение — это callable-объект: <code>def app(environ, start_response)</code>, возвращающий итерируемый объект с телом ответа.</p>
+
+        <h3>2. ASGI: почему WSGI не подошла для асинхронности и WebSocket?</h3>
+        <p><strong>ASGI (Asynchronous Server Gateway Interface)</strong> — асинхронный наследник WSGI. WSGI имеет фундаментальные ограничения:</p>
+        <ul>
+            <li><strong>Синхронность:</strong> WSGI-приложение блокирует поток на время обработки. Нельзя использовать <code>async/await</code>.</li>
+            <li><strong>Один запрос — один ответ:</strong> WSGI не поддерживает долгоживущие соединения (WebSocket, SSE, long-polling).</li>
+            <li><strong>Нет поддержки протоколов, отличных от HTTP:</strong> ASGI поддерживает HTTP, WebSocket и произвольные протоколы (например, MQTT).</li>
+        </ul>
+        <p>ASGI-приложение — это <code>async def app(scope, receive, send)</code>, где <code>scope</code> содержит метаданные соединения, <code>receive</code>/<code>send</code> — асинхронные каналы для событий.</p>
+
+        <h3>3. Роль серверов приложений</h3>
+        <p>Серверы приложений — это «мост» между веб-сервером (Nginx) и Python-кодом. Они реализуют WSGI или ASGI и управляют процессами/потоками.</p>
+        <ul>
+            <li><strong>Gunicorn:</strong> WSGI-сервер (sync, threads, gevent). Классика для Django/Flask.</li>
+            <li><strong>uWSGI:</strong> WSGI-сервер с богатой функциональностью, но сложной конфигурацией.</li>
+            <li><strong>Uvicorn:</strong> ASGI-сервер на <code>uvloop</code> и <code>httptools</code>. Стандарт для FastAPI/Starlette.</li>
+            <li><strong>Daphne:</strong> ASGI-сервер от проекта Django Channels (поддержка WebSocket).</li>
+            <li><strong>Hypercorn:</strong> ASGI-сервер с поддержкой HTTP/2 и HTTP/3.</li>
+        </ul>
+
+        <h3>4. Жизненный цикл HTTP-запроса через WSGI/ASGI</h3>
+        <div class="schema">
+БРАУЗЕР
+  |
+  | HTTP-запрос
+  v
+NGINX (reverse proxy)
+  |  - статика, кэш, TLS, балансировка
+  v
+GUNICORN (WSGI) / UVICORN (ASGI)
+  |  - принимает соединение, парсит HTTP
+  |  - создаёт окружение (environ / scope)
+  v
+WSGI/ASGI MIDDLEWARE
+  |  - аутентификация, CORS, логирование
+  v
+ПРИЛОЖЕНИЕ (Django/Flask/FastAPI)
+  |  - маршрутизация, бизнес-логика
+  |  - обращение к БД/кэшу
+  v
+ОТВЕТ
+  |  - формируется тело и заголовки
+  v
+GUNICORN/UVICORN -> NGINX -> БРАУЗЕР
+        </div>
+
+        <h3>Сравнительная таблица WSGI vs ASGI</h3>
+        <table>
+            <tr><th>Критерий</th><th>WSGI (PEP 3333)</th><th>ASGI</th></tr>
+            <tr><td>Модель</td><td>Синхронная</td><td>Асинхронная (async/await)</td></tr>
+            <tr><td>Протоколы</td><td>Только HTTP</td><td>HTTP, WebSocket, SSE, произвольные</td></tr>
+            <tr><td>Соединения</td><td>Короткоживущие</td><td>Долгоживущие</td></tr>
+            <tr><td>Масштабируемость</td><td>Процессы/потоки</td><td>Event-loop (высокая)</td></tr>
+            <tr><td>Серверы</td><td>Gunicorn, uWSGI, Waitress</td><td>Uvicorn, Daphne, Hypercorn</td></tr>
+            <tr><td>Фреймворки</td><td>Django (sync), Flask</td><td>FastAPI, Starlette, Django (async)</td></tr>
+        </table>
+    </div>
+
+    <!-- ЗАДАНИЕ 3 -->
+    <div class="task">
+        <h2>Задание 3. Сравнительный анализ Backend-фреймворков Python</h2>
+
+        <h3>1. Сравнение Django, Flask, FastAPI</h3>
+        <table>
+            <tr><th>Критерий</th><th>Django</th><th>Flask</th><th>FastAPI</th></tr>
+            <tr><td>Архитектура</td><td>MTV (Model-Template-View), монолитная</td><td>Микрофреймворк, модульная</td><td>ASGI, основан на Starlette + Pydantic</td></tr>
+            <tr><td>Скорость разработки</td><td>Высокая (всё «из коробки»)</td><td>Средняя (много ручной работы)</td><td>Высокая (автодокументация, валидация)</td></tr>
+            <tr><td>Производительность</td><td>Средняя (sync)</td><td>Средняя (sync)</td><td>Высокая (async)</td></tr>
+            <tr><td>ORM</td><td>Django ORM (встроенная)</td><td>SQLAlchemy (внешняя)</td><td>SQLAlchemy / Tortoise (внешняя)</td></tr>
+            <tr><td>Админка</td><td>Встроенная</td><td>Нет (Flask-Admin)</td><td>Нет (SQLAdmin)</td></tr>
+            <tr><td>Валидация</td><td>Forms/DRF Serializers</td><td>WTForms / Marshmallow</td><td>Pydantic (встроенная)</td></tr>
+            <tr><td>Документация API</td><td>DRF + drf-spectacular</td><td>Flask-RESTX / flasgger</td><td>Автоматически (Swagger/OpenAPI)</td></tr>
+        </table>
+
+        <h3>2. «Батарейки включены» vs микрофреймворки</h3>
+        <ul>
+            <li><strong>«Batteries included» (Django):</strong> Фреймворк предоставляет ORM, админку, аутентификацию, формы, кэширование, i18n. <em>Плюсы:</em> быстрый старт, единые стандарты, меньше «велосипедов». <em>Минусы:</em> сложнее кастомизировать, выше порог входа, избыточность для маленьких проектов.</li>
+            <li><strong>Микрофреймворки (Flask, FastAPI):</strong> Минимальное ядро, остальное — через расширения. <em>Плюсы:</em> гибкость, лёгкость, контроль над зависимостями. <em>Минусы:</em> нужно самостоятельно собирать стек (ORM, миграции, админка), больше boilerplate.</li>
+        </ul>
+
+        <h3>3. Как FastAPI использует Python 3.6+</h3>
+        <ul>
+            <li><strong>Type hints:</strong> Аннотации типов (<code>def read_item(item_id: int)</code>) используются для автоматической валидации входных данных через Pydantic и для генерации OpenAPI-схемы.</li>
+            <li><strong>Pydantic:</strong> Модели на основе type hints валидируют JSON, преобразуют типы и сериализуют ответы.</li>
+            <li><strong>asyncio:</strong> FastAPI построен на ASGI и поддерживает <code>async def</code> эндпоинты, что даёт высокую производительность на I/O-bound задачах.</li>
+            <li><strong>Автодокументация:</strong> На основе типов и Pydantic-моделей FastAPI генерирует Swagger UI (<code>/docs</code>) и ReDoc (<code>/redoc</code>) без написания дополнительного кода.</li>
+        </ul>
+        <pre><code>from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+@app.post("/items/")
+async def create_item(item: Item):
+    return {"name": item.name, "price": item.price}</code></pre>
+
+        <h3>Рекомендации по выбору</h3>
+        <ul>
+            <li><strong>Стартап / MVP:</strong> Django (быстрый старт, админка, аутентификация) или FastAPI (если API-first).</li>
+            <li><strong>Высоконагруженное API:</strong> FastAPI (async, автодокументация, Pydantic).</li>
+            <li><strong>Корпоративный портал:</strong> Django (стабильность, экосистема, безопасность, админка).</li>
+        </ul>
+    </div>
+
+    <!-- ЗАДАНИЕ 4 -->
+    <div class="task">
+        <h2>Задание 4. Модели конкурентности и GIL в Python</h2>
+
+        <h3>1. GIL (Global Interpreter Lock)</h3>
+        <p><strong>GIL</strong> — глобальная блокировка интерпретатора CPython, которая позволяет только одному потоку выполнять байт-код Python в любой момент времени.</p>
+        <ul>
+            <li><strong>CPU-bound задачи:</strong> GIL убивает многопоточность — потоки не могут выполняться параллельно на разных ядрах. Нужен <code>multiprocessing</code>.</li>
+            <li><strong>I/O-bound задачи:</strong> GIL отпускается во время ожидания I/O (сеть, диск), поэтому <code>threading</code> и <code>asyncio</code> эффективны.</li>
+        </ul>
+        <div class="note">GIL — особенность CPython, а не языка Python. В Jython и IronPython его нет.</div>
+
+        <h3>2. threading vs multiprocessing vs asyncio</h3>
+        <table>
+            <tr><th>Инструмент</th><th>Модель</th><th>GIL</th><th>Лучше для</th><th>Память</th></tr>
+            <tr><td><code>threading</code></td><td>Потоки ОС</td><td>Ограничен</td><td>I/O-bound (сеть, файлы)</td><td>Общая</td></tr>
+            <tr><td><code>multiprocessing</code></td><td>Процессы ОС</td><td>Не влияет</td><td>CPU-bound (вычисления)</td><td>Изолированная</td></tr>
+            <tr><td><code>asyncio</code></td><td>Кооперативная многозадачность (event-loop)</td><td>Один поток</td><td>Массовый I/O (тысячи соединений)</td><td>Общая</td></tr>
+        </table>
+
+        <h3>3. Event Loop, await и async def</h3>
+        <p><strong>Event Loop</strong> — цикл, который управляет выполнением корутин. Он следит за готовностью I/O-событий и переключает задачи.</p>
+        <ul>
+            <li><code>async def</code> создаёт <strong>корутину</strong> — функцию, которая может приостанавливаться.</li>
+            <li><code>await</code> — точка приостановки. Когда корутина встречает <code>await</code> на I/O-операции, она возвращает управление event-loop, который запускает другие готовые корутины.</li>
+            <li>Под капотом: корутины — это генераторы, управляемые через <code>send()</code>/<code>throw()</code>; event-loop использует <code>select</code>/<code>epoll</code>/<code>kqueue</code> для отслеживания готовности сокетов.</li>
+        </ul>
+        <pre><code>import asyncio
+
+async def fetch_data():
+    await asyncio.sleep(1)  # приостановка, event-loop делает другие задачи
+    return "data"
+
+async def main():
+    result = await fetch_data()
+    print(result)
+
+asyncio.run(main())</code></pre>
+
+        <h3>4. Blocking calls в асинхронном коде и как обходить</h3>
+        <p>Блокирующий вызов (например, <code>time.sleep()</code>, <code>requests.get()</code>, тяжёлые вычисления) останавливает весь event-loop, и все корутины «зависают».</p>
+        <ul>
+            <li><strong>Нельзя:</strong> <code>requests</code>, <code>time.sleep</code>, синхронные драйверы БД, тяжёлые CPU-вычисления.</li>
+            <li><strong>Обход:</strong>
+                <ul>
+                    <li>Использовать асинхронные библиотеки: <code>aiohttp</code>, <code>httpx</code>, <code>asyncpg</code>, <code>aiomysql</code>.</li>
+                    <li>Выносить блокирующий код в <code>asyncio.to_thread()</code> или <code>loop.run_in_executor()</code>.</li>
+                    <li>CPU-bound задачи — в <code>ProcessPoolExecutor</code>.</li>
+                </ul>
+            </li>
+        </ul>
+        <pre><code>import asyncio
+
+async def main():
+    # Плохо: блокирует event-loop
+    # time.sleep(5)
+
+    # Хорошо: вынос в поток
+    await asyncio.to_thread(time.sleep, 5)
+
+    # Хорошо: асинхронная библиотека
+    # await asyncio.sleep(5)
+
+asyncio.run(main())</code></pre>
+    </div>
+
+    <!-- ЗАДАНИЕ 5 -->
+    <div class="task">
+        <h2>Задание 5. Архитектура API: REST, GraphQL и gRPC</h2>
+
+        <h3>1. 6 ограничений RESTful API</h3>
+        <ol>
+            <li><strong>Client-Server:</strong> Разделение ответственности между клиентом и сервером.</li>
+            <li><strong>Stateless:</strong> Каждый запрос содержит всю информацию для обработки; сервер не хранит состояние клиента.</li>
+            <li><strong>Cacheable:</strong> Ответы должны явно указывать, можно ли их кэшировать.</li>
+            <li><strong>Uniform Interface:</strong> Единый интерфейс (идентификация ресурсов через URI, манипуляция через представления, самоописываемые сообщения, HATEOAS).</li>
+            <li><strong>Layered System:</strong> Клиент не знает, общается он с конечным сервером или с промежуточным (прокси, балансировщик).</li>
+            <li><strong>Code on Demand (опционально):</strong> Сервер может передавать исполняемый код клиенту (например, JavaScript).</li>
+        </ol>
+
+        <h3>2. GraphQL и проблемы REST</h3>
+        <p><strong>GraphQL</strong> — язык запросов к API, позволяющий клиенту запросить ровно те данные, которые ему нужны.</p>
+        <ul>
+            <li><strong>Over-fetching:</strong> REST возвращает лишние поля. GraphQL — только запрошенные.</li>
+            <li><strong>Under-fetching:</strong> REST требует нескольких запросов для связанных данных. GraphQL — один запрос с вложенными полями.</li>
+            <li><strong>Версионирование:</strong> GraphQL обычно не версионируется — новые поля добавляются, старые депрекейтятся.</li>
+        </ul>
+        <pre><code>query {
+  user(id: 1) {
+    name
+    posts {
+      title
+    }
+  }
+}</code></pre>
+
+        <h3>3. gRPC и Protocol Buffers</h3>
+        <p><strong>gRPC</strong> — высокопроизводительный RPC-фреймворк от Google, использующий HTTP/2 и Protocol Buffers (бинарная сериализация).</p>
+        <ul>
+            <li><strong>Protocol Buffers:</strong> Схема данных в <code>.proto</code>-файлах, компилируется в код на Python (и других языках).</li>
+            <li><strong>HTTP/2:</strong> Мультиплексирование, сжатие заголовков, потоковая передача.</li>
+            <li><strong>Почему стандарт для микросервисов:</strong> Высокая скорость (бинарный формат), строгая типизация, автогенерация клиентов/серверов, поддержка стриминга.</li>
+        </ul>
+        <pre><code>syntax = "proto3";
+service UserService {
+  rpc GetUser (UserRequest) returns (UserResponse);
+}
+message UserRequest { int32 id = 1; }
+message UserResponse { string name = 1; }</code></pre>
+
+        <h3>4. Версионирование и пагинация в Python</h3>
+        <ul>
+            <li><strong>Версионирование:</strong>
+                <ul>
+                    <li>URI: <code>/api/v1/users</code> (самый простой, DRF).</li>
+                    <li>Заголовок: <code>Accept: application/vnd.api+json; version=1.0</code>.</li>
+                    <li>Query-параметр: <code>/api/users?version=1</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Пагинация:</strong>
+                <ul>
+                    <li>Offset/Limit: <code>?offset=20&limit=10</code> (просто, но медленно на больших данных).</li>
+                    <li>Cursor-based: <code>?cursor=abc123&limit=10</code> (стабильно, используется в GraphQL Relay).</li>
+                    <li>Page number: <code>?page=3&per_page=10</code> (DRF PageNumberPagination).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Сравнительная таблица REST / GraphQL / gRPC</h3>
+        <table>
+            <tr><th>Критерий</th><th>REST</th><th>GraphQL</th><th>gRPC</th></tr>
+            <tr><td>Скорость</td><td>Средняя</td><td>Средняя (зависит от резолверов)</td><td>Высокая (бинарный HTTP/2)</td></tr>
+            <tr><td>Гибкость</td><td>Низкая (фиксированные эндпоинты)</td><td>Высокая (клиент запрашивает нужное)</td><td>Средняя (строгая схема)</td></tr>
+            <tr><td>Сложность реализации</td><td>Низкая</td><td>Средняя/Высокая</td><td>Средняя (нужен protoc)</td></tr>
+            <tr><td>Кэшируемость</td><td>Высокая (HTTP-кэш)</td><td>Низкая (обычно POST)</td><td>Низкая</td></tr>
+            <tr><td>Стриминг</td><td>Нет (кроме SSE)</td><td>Есть (subscriptions)</td><td>Есть (bidirectional)</td></tr>
+            <tr><td>Применение</td><td>Публичные API, CRUD</td><td>Сложные клиенты, мобильные приложения</td><td>Микросервисы, внутренние API</td></tr>
+        </table>
+    </div>
+
+    <!-- ЗАДАНИЕ 6 -->
+    <div class="task">
+        <h2>Задание 6. Работа с данными: ORM и проблема N+1</h2>
+
+        <h3>1. Как работают ORM</h3>
+        <p><strong>ORM (Object-Relational Mapping)</strong> — технология, связывающая объекты Python с таблицами БД. ORM автоматически генерирует SQL-запросы на основе операций с объектами.</p>
+        <ul>
+            <li><strong>Маппинг объектов:</strong> Класс ↔ таблица, атрибут ↔ колонка, экземпляр ↔ строка.</li>
+            <li><strong>Пример (SQLAlchemy):</strong>
+<pre><code>class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)</code></pre>
+            </li>
+            <li><strong>Альтернативы:</strong> Сырые SQL-запросы (<code>cursor.execute()</code>), Query Builders (SQLAlchemy Core).</li>
+        </ul>
+
+        <h3>2. Проблема N+1 запросов</h3>
+        <p><strong>N+1</strong> — ситуация, когда для получения связанных данных выполняется 1 запрос на родительские объекты и N дополнительных запросов на связанные объекты каждого родителя.</p>
+        <p><strong>Причина:</strong> Ленивая загрузка (lazy loading) по умолчанию.</p>
+        <pre><code># Плохо: N+1
+users = session.query(User).all()  # 1 запрос
+for user in users:
+    print(user.posts)  # N запросов (по одному на пользователя)</code></pre>
+        <p><strong>Диагностика:</strong> Включить логирование SQL (<code>echo=True</code> в SQLAlchemy), использовать Django Debug Toolbar, <code>django-silk</code>, <code>nplusone</code>.</p>
+
+        <h3>3. Решение N+1</h3>
+        <ul>
+            <li><strong>Eager loading (жадная загрузка):</strong> Загрузка связанных данных сразу.
+                <ul>
+                    <li>SQLAlchemy: <code>joinedload()</code> (JOIN), <code>selectinload()</code> (второй запрос с IN).</li>
+                    <li>Django: <code>select_related()</code> (ForeignKey/OneToOne), <code>prefetch_related()</code> (ManyToMany).</li>
+                </ul>
+            </li>
+            <li><strong>JOIN-запросы:</strong> Явное соединение таблиц в одном запросе.</li>
+            <li><strong>Кэширование:</strong> Сохранение результатов в Redis/Memcached.</li>
+        </ul>
+        <pre><code># Хорошо: eager loading (SQLAlchemy)
+from sqlalchemy.orm import selectinload
+users = session.query(User).options(selectinload(User.posts)).all()
+
+# Хорошо: Django
+users = User.objects.prefetch_related('posts').all()</code></pre>
+
+        <h3>4. Repository Pattern и Unit of Work</h3>
+        <ul>
+            <li><strong>Repository Pattern:</strong> Абстракция доступа к данным. Репозиторий инкапсулирует логику запросов, приложение работает с ним как с коллекцией объектов. Плюсы: тестируемость (можно подменить моком), изоляция от ORM.</li>
+            <li><strong>Unit of Work:</strong> Паттерн управления транзакциями. Группирует операции с БД в одну транзакцию, гарантируя атомарность (commit/rollback).</li>
+        </ul>
+        <pre><code>class UserRepository:
+    def __init__(self, session):
+        self.session = session
+    def get(self, user_id):
+        return self.session.query(User).get(user_id)
+    def add(self, user):
+        self.session.add(user)</code></pre>
+    </div>
+
+    <!-- ЗАДАНИЕ 7 -->
+    <div class="task">
+        <h2>Задание 7. Фоновые задачи, очереди и брокеры сообщений</h2>
+
+        <h3>1. Почему нельзя выполнять долгие задачи в HTTP-запросе?</h3>
+        <ul>
+            <li><strong>Таймауты:</strong> Клиент и прокси (Nginx) обрывают соединение через 30–60 секунд.</li>
+            <li><strong>Блокировка воркеров:</strong> Пока задача выполняется, воркер не может обработать другие запросы (особенно критично для sync-серверов).</li>
+            <li><strong>Плохой UX:</strong> Пользователь ждёт ответа.</li>
+            <li><strong>Нет повторных попыток:</strong> При сбое задача теряется.</li>
+        </ul>
+
+        <h3>2. Брокеры сообщений</h3>
+        <table>
+            <tr><th>Брокер</th><th>Модель</th><th>Особенности</th></tr>
+            <tr><td>RabbitMQ</td><td>Очереди (AMQP)</td><td>Гибкая маршрутизация, подтверждения, надёжность</td></tr>
+            <tr><td>Redis</td><td>Очереди (Pub/Sub, Lists)</td><td>Простота, скорость, но меньше гарантий</td></tr>
+            <tr><td>Kafka</td><td>Лог событий (streaming)</td><td>Высокая пропускная способность, хранение событий, повторное чтение</td></tr>
+        </table>
+
+        <h3>3. Архитектура Celery</h3>
+        <div class="schema">
+КЛИЕНТ (Django/FastAPI)
+  |  task.delay() / apply_async()
+  v
+BROKER (RabbitMQ / Redis)
+  |  хранит очередь сообщений
+  v
+CELERY WORKER (процесс)
+  |  забирает задачу, выполняет
+  v
+RESULT BACKEND (Redis / БД)
+  |  сохраняет результат
+  v
+КЛИЕНТ (получает результат по task_id)
+        </div>
+        <p><strong>Альтернативы Celery:</strong> RQ (Redis Queue — простой), Huey (лёгкий), Dramatiq (быстрый, надёжный), ARQ (asyncio-based).</p>
+
+        <h3>4. Идемпотентность и poison pills</h3>
+        <ul>
+            <li><strong>Идемпотентность:</strong> Свойство задачи давать одинаковый результат при повторном выполнении. Важно для retry-механизмов (например, повторная отправка email не должна дублироваться).</li>
+            <li><strong>Poison pill:</strong> Сообщение, которое воркер не может обработать (вызывает исключение). Если его бесконечно возвращать в очередь, воркер зациклится.</li>
+            <li><strong>Обработка:</strong> Использовать dead-letter queue (DLQ), ограничение количества retry (<code>max_retries</code>), логирование и алертинг.</li>
+        </ul>
+        <pre><code>@app.task(bind=True, max_retries=3)
+def send_email(self, email):
+    try:
+        send(email)
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=60)</code></pre>
+    </div>
+
+    <!-- ЗАДАНИЕ 8 -->
+    <div class="task">
+        <h2>Задание 8. Безопасность серверных приложений на Python</h2>
+
+        <h3>1. Session-based аутентификация vs JWT</h3>
+        <table>
+            <tr><th>Критерий</th><th>Session (куки + серверное хранилище)</th><th>JWT (токен)</th></tr>
+            <tr><td>Хранение состояния</td><td>На сервере (Redis/БД)</td><td>На клиенте (токен)</td></tr>
+            <tr><td>Масштабируемость</td><td>Нужно общее хранилище сессий</td><td>Stateless — легко масштабируется</td></tr>
+            <tr><td>Отзыв (revoke)</td><td>Просто (удалить сессию)</td><td>Сложно (нужен blacklist или короткий TTL)</td></tr>
+            <tr><td>Безопасность</td><td>CSRF-риски</td><td>XSS-риски (если хранить в localStorage)</td></tr>
+            <tr><td>Применение</td><td>Веб-приложения (Django)</td><td>API, мобильные приложения, микросервисы</td></tr>
+        </table>
+
+        <h3>2. Хеширование паролей</h3>
+        <p><strong>Нельзя:</strong> MD5, SHA1, SHA256 без соли — они быстрые, уязвимы к rainbow tables и brute-force.</p>
+        <p><strong>Нужно:</strong> Медленные алгоритмы с солью: <code>bcrypt</code>, <code>argon2</code>, <code>scrypt</code>, <code>PBKDF2</code>.</p>
+        <ul>
+            <li><strong>Соль (salt):</strong> Случайные данные, добавляемые к паролю перед хешированием, чтобы одинаковые пароли давали разные хеши.</li>
+            <li><strong>bcrypt:</strong> Адаптивная сложность (cost factor).</li>
+            <li><strong>argon2:</strong> Победитель Password Hashing Competition, устойчив к GPU-атакам.</li>
+        </ul>
+        <pre><code>from passlib.hash import argon2
+hash = argon2.hash("password")
+argon2.verify("password", hash)  # True</code></pre>
+
+        <h3>3. Топ-5 уязвимостей OWASP для Python</h3>
+        <ol>
+            <li><strong>SQL-инъекции:</strong> Использовать параметризованные запросы (<code>cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))</code>), ORM.</li>
+            <li><strong>XSS:</strong> Экранирование вывода (Jinja2 autoescape, Django templates), CSP-заголовки.</li>
+            <li><strong>CSRF:</strong> CSRF-токены (Django <code>{% csrf_token %}</code>), SameSite cookies.</li>
+            <li><strong>IDOR (Insecure Direct Object Reference):</strong> Проверка прав доступа к объекту на сервере (не полагаться на ID из URL).</li>
+            <li><strong>Сломанная аутентификация:</strong> Сильные пароли, MFA, rate limiting, безопасное хранение сессий.</li>
+        </ol>
+
+        <h3>4. CORS</h3>
+        <p><strong>CORS (Cross-Origin Resource Sharing)</strong> — механизм, позволяющий браузеру запрашивать ресурсы с другого домена.</p>
+        <ul>
+            <li>Настройка на сервере: заголовки <code>Access-Control-Allow-Origin</code>, <code>Access-Control-Allow-Methods</code>, <code>Access-Control-Allow-Headers</code>.</li>
+            <li>Не использовать <code>*</code> для credentialed-запросов (с куками).</li>
+            <li>В Django: <code>django-cors-headers</code>. В FastAPI: <code>CORSMiddleware</code>.</li>
+        </ul>
+
+        <h3>Чек-лист безопасности</h3>
+        <ul>
+            <li>☑️ Пароли хешируются argon2/bcrypt.</li>
+            <li>☑️ Все SQL-запросы параметризованы.</li>
+            <li>☑️ HTTPS включён, HSTS настроен.</li>
+            <li>☑️ CSRF-защита включена для форм.</li>
+            <li>☑️ CORS настроен строго (белый список доменов).</li>
+            <li>☑️ Rate limiting на аутентификацию.</li>
+            <li>☑️ Секреты в переменных окружения, не в коде.</li>
+            <li>☑️ Зависимости проверены (<code>pip-audit</code>, <code>safety</code>).</li>
+            <li>☑️ Логи не содержат чувствительных данных.</li>
+        </ul>
+    </div>
+
+    <!-- ЗАДАНИЕ 9 -->
+    <div class="task">
+        <h2>Задание 9. Архитектурные паттерны: Монолит vs Микросервисы</h2>
+
+        <h3>1. Монолитная архитектура</h3>
+        <p><strong>Монолит</strong> — единое приложение, где весь код (UI, бизнес-логика, доступ к данным) находится в одном процессе и развёртывается как единое целое.</p>
+        <p><strong>Преимущества на старте:</strong> простота разработки, единая кодовая база, простая отладка, один деплой, низкие накладные расходы на инфраструктуру.</p>
+
+        <h3>2. Микросервисы и их проблемы</h3>
+        <p><strong>Микросервисы</strong> — архитектура, где приложение разбито на небольшие независимые сервисы, общающиеся по сети.</p>
+        <p><strong>Новые проблемы:</strong></p>
+        <ul>
+            <li><strong>Распределённые транзакции:</strong> Нет единой ACID-транзакции. Нужны паттерны Saga, 2PC.</li>
+            <li><strong>Сетевые задержки:</strong> Каждый вызов — потенциальный сбой (timeout, retry, circuit breaker).</li>
+            <li><strong>Оркестрация:</strong> Kubernetes, service mesh, мониторинг, трассировка.</li>
+            <li><strong>Сложность данных:</strong> Каждый сервис — своя БД, согласованность данных.</li>
+        </ul>
+
+        <h3>3. Синхронное vs асинхронное взаимодействие</h3>
+        <ul>
+            <li><strong>Синхронное (HTTP/gRPC):</strong> Простое, но создаёт жёсткую связность (если сервис B упал — A тоже падает).</li>
+            <li><strong>Асинхронное (Event-driven, Message Broker):</strong> Слабая связность, устойчивость к сбоям, но сложнее отладка и eventual consistency.</li>
+        </ul>
+
+        <h3>4. API Gateway и Service Discovery</h3>
+        <ul>
+            <li><strong>API Gateway:</strong> Единая точка входа для клиентов. Маршрутизация, аутентификация, rate limiting, агрегация ответов.</li>
+            <li><strong>Service Discovery:</strong> Механизм, позволяющий сервисам находить друг друга (Consul, Eureka, Kubernetes DNS).</li>
+        </ul>
+
+        <h3>Эссе: когда распиливать монолит?</h3>
+        <p>Монолит стоит распиливать, когда:</p>
+        <ul>
+            <li>Команда выросла (более 10–15 разработчиков) и возникли конфликты в кодовой базе.</li>
+            <li>Появились части системы с разными требованиями к масштабированию (например, парсинг vs API).</li>
+            <li>Деплой стал занимать часы, а релизы — раз в неделю из-за страха сломать всё.</li>
+            <li>Появилась необходимость использовать разные технологии для разных задач.</li>
+        </ul>
+        <p>Начинать стоит с <strong>модульного монолита</strong> (чёткие границы модулей внутри одного приложения), затем выделять сервисы постепенно (Strangler Fig Pattern).</p>
+    </div>
+
+    <!-- ЗАДАНИЕ 10 -->
+    <div class="task">
+        <h2>Задание 10. Деплой, контейнеризация и CI/CD для Python</h2>
+
+        <h3>1. Dockerfile для Python (best practices)</h3>
+        <ul>
+            <li><strong>Многоступенчатая сборка:</strong> Отдельный stage для сборки зависимостей, финальный — только runtime.</li>
+            <li><strong>Non-root user:</strong> Не запускать приложение от root.</li>
+            <li><strong>Кэш слоёв:</strong> Сначала копировать <code>requirements.txt</code>, устанавливать зависимости, затем копировать код.</li>
+            <li><strong>Базовый образ:</strong> <code>python:3.12-slim</code> вместо <code>latest</code>.</li>
+        </ul>
+        <pre><code># Этап сборки
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user -r requirements.txt
+
+# Финальный этап
+FROM python:3.12-slim
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .
+ENV PATH=/root/.local/bin:$PATH
+RUN useradd -m appuser
+USER appuser
+CMD ["gunicorn", "app:app", "-b", "0.0.0.0:8000"]</code></pre>
+
+        <h3>2. Связка Nginx + Gunicorn/Uvicorn</h3>
+        <ul>
+            <li><strong>Nginx:</strong> Reverse proxy. Отдаёт статику, терминирует TLS, кэширует, балансирует нагрузку, защищает от медленных клиентов (slowloris).</li>
+            <li><strong>Gunicorn (WSGI):</strong> Сервер приложений. Управляет воркерами (sync/threads/gevent), принимает запросы от Nginx.</li>
+            <li><strong>Uvicorn (ASGI):</strong> Асинхронный сервер приложений. Для FastAPI/Starlette. Часто запускается под Gunicorn с <code>UvicornWorker</code>.</li>
+        </ul>
+        <div class="schema">
+БРАУЗЕР -> NGINX (443) -> GUNICORN/UVICORN (8000) -> PYTHON APP
+        </div>
+
+        <h3>3. 12-Factor App</h3>
+        <p>Манифест для облачных приложений. Ключевые факторы для Python:</p>
+        <ul>
+            <li><strong>I. Codebase:</strong> Одна кодовая база в Git.</li>
+            <li><strong>II. Dependencies:</strong> Явное объявление зависимостей (<code>requirements.txt</code>, <code>pyproject.toml</code>).</li>
+            <li><strong>III. Config:</strong> Конфигурация в переменных окружения, не в коде.</li>
+            <li><strong>IV. Backing services:</strong> БД, Redis — как подключаемые ресурсы (через URL).</li>
+            <li><strong>V. Build, release, run:</strong> Чёткое разделение стадий.</li>
+            <li><strong>VI. Processes:</strong> Stateless-процессы (сессии — в Redis).</li>
+            <li><strong>VII. Port binding:</strong> Приложение само слушает порт.</li>
+            <li><strong>VIII. Concurrency:</strong> Масштабирование через процессы.</li>
+            <li><strong>IX. Disposability:</strong> Быстрый старт и graceful shutdown.</li>
+            <li><strong>X. Dev/prod parity:</strong> Одинаковое окружение.</li>
+            <li><strong>XI. Logs:</strong> Писать в stdout.</li>
+            <li><strong>XII. Admin processes:</strong> Миграции и админ-скрипты — как отдельные процессы.</li>
+        </ul>
+
+        <h3>4. CI/CD: pytest и линтеры</h3>
+        <p>Пример GitHub Actions (</p>
+        <pre><code>name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Type check (mypy)
+        run: mypy .
+      - name: Tests (pytest)
+        run: pytest --cov=app
+      - name: Build Docker image
+        run: docker build -t myapp:${{ github.sha }} .</code></pre>
+
+        <h3>Пошаговый гайд по деплою</h3>
+        <ol>
+            <li>Написать <code>Dockerfile</code> (multi-stage, non-root).</li>
+            <li>Создать <code>docker-compose.yml</code> для локальной разработки (app + db + redis).</li>
+            <li>Настроить CI (GitHub Actions): линтеры, тесты, сборка образа.</li>
+            <li>Настроить CD: пуш образа в registry (Docker Hub, GHCR), деплой на сервер (SSH + docker compose pull/up или Kubernetes).</li>
+            <li>Настроить Nginx как reverse proxy с TLS (Let's Encrypt).</li>
+            <li>Настроить мониторинг (Prometheus + Grafana, Sentry) и логирование (ELK, Loki).</li>
+        </ol>
+    </div>
+
+</div>
+
+</body>
+</html>
